@@ -1,0 +1,25 @@
+name: Build AVP EQ
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        shell: pwsh
+        run: cmake --preset windows-ci-x64
+      - name: Build
+        shell: pwsh
+        run: cmake --build --preset windows-ci-x64 --config RelWithDebInfo --parallel
+      - name: Install into a folder
+        shell: pwsh
+        run: cmake --install build_x64 --prefix release/RelWithDebInfo --config RelWithDebInfo
+      - name: Zip
+        shell: pwsh
+        run: Compress-Archive -Path release/RelWithDebInfo/* -DestinationPath avp-eq-windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: avp-eq-windows-x64
+          path: avp-eq-windows-x64.zip
